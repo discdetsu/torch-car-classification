@@ -12,7 +12,8 @@ import os
 def load_checkpoint(filepath):
 
     checkpoint = torch.load(filepath, map_location=torch.device('cpu'))
-    
+        
+    model = models.resnet34(pretrained=True)
     #model.load_state_dict(checkpoint['state_dict'])
     model.load_state_dict(checkpoint['state_dict'], strict=False)
     model.class_to_idx = checkpoint['class_to_idx']
@@ -147,7 +148,6 @@ def draw_label(img, true_classes, predicted_classes, cfscs, font_size):
 
 if __name__ == "__main__":
 
-    model = models.resnet34(pretrained=True)
     model = load_checkpoint('model.pth').cpu()
     model.eval()
 
