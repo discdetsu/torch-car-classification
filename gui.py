@@ -28,11 +28,12 @@ class App:
          # Create a canvas that can fit the above video source size
          self.canvas = tkinter.Canvas(window, width = self.vid.width, height = self.vid.height)
          self.canvas.pack()
-         # self.label = Canvas(window, width= 1000, height= 750, bg="SpringGreen2")
-         # self.labels = []
-         self.labels = [Label(self.window,font= ("Arial", 20), text='') for i in range(5)]
+         
+         # Create text label to display predicted classes and confident scores
+         self.labels = [Label(self.window, font= ("Ubuntu", 20), text='') for i in range(5)]
          for label in self.labels:
              label.pack(pady=10)
+
          # Button that lets the user take a snapshot
          
          self.delay = 15
@@ -54,26 +55,12 @@ class App:
              self.canvas.create_image(0, 0, image = self.photo, anchor = tkinter.NW)
              pred_class, cf = self.predict(model, classes, frame)
              
-             # offset = 20
-
              for index, pred in enumerate(zip(pred_class, cf)):
                  
                  text = '{} Conf: {:.4f}'.format(pred[0], pred[1])
-                 
-                 # offset += 30
-
                  self.labels[index].config(text=text)
-                 # self.labels.append(Label(self.window, text=text))
-                 # self.labels[-1].pack()
-             
-          
-                 # self.label.create_text(500, offset, text=text, fill="black", font=('Helvetica 15 normal'))
-
                 
          self.window.after(self.delay, self.update)
-        # for label in self.labels:
-          #  label.pack_forget()
-         # self.labels = [] 
      
      def predict(self, model, classes, frame):
         
