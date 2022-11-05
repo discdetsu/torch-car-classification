@@ -6,5 +6,5 @@ Freelance Project
 
 Enter this command
    ```sh
-   python video.py
+   python gui.py
    ```
