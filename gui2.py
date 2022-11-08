@@ -2,10 +2,12 @@ import tkinter
 import cv2
 from PIL import Image, ImageTk
 import time
+from csv import writer
 
 from video import *
 from color_detector import get_color_name
 from lpr2_api import get_license_plate
+from record import create_record_window
 
 class App:
     def __init__(self, window, window_title, coor, video_source=0):
@@ -69,16 +71,22 @@ class App:
             current_time = time.strftime("%d-%m-%Y-%H-%M-%S")
             image_path = "screenshot/frame-" + current_time + ".jpg"
 
-             # save image for api requests    
-            cv2.imwrite(image_path, cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-
+             # save image for api requests
+            cropped_frame = frame[self.coor['p1'][1]:self.coor['p2'][1], self.coor['p1'][0]:self.coor['p2'][0]]    
+            cv2.imwrite(image_path, cv2.cvtColor(cropped_frame, cv2.COLOR_RGB2BGR))
+            
             data = {
                 "file_name": image_path,
                 "lp": get_license_plate(image_path),
-                "car": self.predict(model, classes, frame),
+                "car": self.predict(model, classes, cropped_frame),
                 "color": get_color_name(color_point, frame),
                 "time_entry": current_time
             }
+
+            with open('record.csv', 'a') as f_object:
+                writer_object = writer(f_object)
+                writer_object.writerow(data.values())
+                f_object.close()
 
             if len(self.table_queue) < 5:
                 self.table_queue.append(data)
@@ -109,7 +117,8 @@ class App:
             self.canvas.create_image(0, 0, image = self.photo, anchor = tkinter.NW)
             
             # Realtime label
-            pred_class = self.predict(model, classes, frame)
+            cropped_frame = frame[self.coor['p1'][1]:self.coor['p2'][1], self.coor['p1'][0]:self.coor['p2'][0]] 
+            pred_class = self.predict(model, classes, cropped_frame)
             self.car_model_name.config(text=pred_class)
 
 
@@ -117,12 +126,8 @@ class App:
         self.window.after(self.delay, self.update)
 
     def open_record(self):
-        record_win = tkinter.Toplevel(self.window)
-        record_win.geometry('750x250')
-        record_win.title("New Window")
-        #Create a Label in New window
-        tkinter.Label(record_win, text="Hey, Howdy?", font=('Ubuntu', 20)).grid(column=0, row=0)
-
+        create_record_window(self.window)
+        
     def predict(self, model, classes, frame):
         
         pil_image = Image.fromarray(frame)
