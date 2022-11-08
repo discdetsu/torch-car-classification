@@ -6,5 +6,5 @@ Freelance Project
 
 Enter this command
    ```sh
-   python gui.py
+   python gui2.py
    ```
